@@ -238,19 +238,19 @@ Scheme_Object* scheme_initialize(Scheme_Env *env)
   module = scheme_primitive_module(name, env);
 
   proc = scheme_make_prim_w_arity(r_can_open, "can-open-raw", 1, 1);
-  scheme_add_global("can-open", proc, module);
+  scheme_add_global("can-open-raw", proc, module);
 
   proc = scheme_make_prim_w_arity(r_can_close, "can-close-raw", 1, 1);
-  scheme_add_global("can-close", proc, module);
+  scheme_add_global("can-close-raw", proc, module);
 
   proc = scheme_make_prim_w_arity(r_can_write, "can-send-raw", 3, 3);
-  scheme_add_global("can-send", proc, module);
+  scheme_add_global("can-send-raw", proc, module);
 
   proc = scheme_make_prim_w_arity(r_can_read, "can-receive!-raw", 1, 1);
-  scheme_add_global("can-receive!", proc, module);
+  scheme_add_global("can-receive!-raw", proc, module);
 
   proc = scheme_make_prim_w_arity(r_can_read_nonblock, "can-receive!*-raw", 1, 1);
-  scheme_add_global("can-receive!*", proc, module);
+  scheme_add_global("can-receive!*-raw", proc, module);
 
   scheme_finish_primitive_module(module);
 
