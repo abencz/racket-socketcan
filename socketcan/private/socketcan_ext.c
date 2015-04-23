@@ -115,23 +115,10 @@ int can_check_data(int sock)
   }
 }
 
-static void check_socket_arg(int argc, Scheme_Object **argv)
-{
-  if (!SCHEME_INTP(argv[0]))
-  {
-    scheme_wrong_type("socket", "integer socket handle", 0, argc, argv);
-  }
-}
-
 static Scheme_Object* r_can_open(int argc, Scheme_Object **argv)
 {
   int sock;
   Scheme_Object* byte_str;
-
-  if (!SCHEME_CHAR_STRINGP(argv[0]))
-  {
-    scheme_wrong_type("interface", "character string", 0, argc, argv);
-  }
 
   byte_str = scheme_char_string_to_byte_string(argv[0]);
   sock = can_open(SCHEME_BYTE_STR_VAL(byte_str));
@@ -141,7 +128,6 @@ static Scheme_Object* r_can_open(int argc, Scheme_Object **argv)
 static Scheme_Object* r_can_close(int argc, Scheme_Object **argv)
 {
   int sock;
-  check_socket_arg(argc, argv);
 
   sock = SCHEME_INT_VAL(argv[0]);
   return scheme_make_integer(can_close(sock));
@@ -151,35 +137,11 @@ static Scheme_Object* r_can_write(int argc, Scheme_Object **argv)
 {
   int sock, id, length;
   const char *data;
-  check_socket_arg(argc, argv);
 
   sock = SCHEME_INT_VAL(argv[0]);
-
-  if (!SCHEME_INTP(argv[1]))
-  {
-    scheme_wrong_type("can-id", "integer CAN id", 0, argc, argv);
-  }
-
   id = SCHEME_INT_VAL(argv[1]);
-
-  if (id < 0 || id >= (1 << 11))
-  {
-    scheme_wrong_contract("can-id", "0 <= can-id < 2048", 1, argc, argv);
-  }
-
-  if (!SCHEME_BYTE_STRINGP(argv[2]))
-  {
-    scheme_wrong_type("data", "byte string", 0, argc, argv);
-  }
-
   data = SCHEME_BYTE_STR_VAL(argv[2]);
   length = SCHEME_BYTE_STRLEN_VAL(argv[2]);
-
-  if (length > 8)
-  {
-    scheme_wrong_contract("data", "(<= (bytes-length data) 8)", 2, argc, argv);
-  }
-
   return scheme_make_integer(can_write(sock, id, data, length));
 }
 
@@ -202,7 +164,6 @@ static Scheme_Object* r_can_read(int argc, Scheme_Object **argv)
   int sock, id, length;
   char data[8];
   Scheme_Object *bytes, *id_int;
-  check_socket_arg(argc, argv);
 
   sock = SCHEME_INT_VAL(argv[0]);
   scheme_block_until(r_can_ready, r_needs_wakeup, argv[0], 0.1);
@@ -217,7 +178,6 @@ static Scheme_Object* r_can_read(int argc, Scheme_Object **argv)
 static Scheme_Object* r_can_read_nonblock(int argc, Scheme_Object **argv)
 {
   int sock;
-  check_socket_arg(argc, argv);
 
   sock = SCHEME_INT_VAL(argv[0]);
 

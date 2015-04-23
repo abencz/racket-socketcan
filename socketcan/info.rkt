@@ -9,4 +9,4 @@
 (define categories '(net))
 
 (define pre-install-collection "private/install.rkt")
-(define compile-omit-files '("private/install.rkt" "private/socketcan.h"))
+(define compile-omit-files '("private/install.rkt"))
