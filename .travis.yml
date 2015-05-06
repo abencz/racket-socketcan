@@ -1,0 +1,33 @@
+# adapted from
+# https://github.com/greghendershott/travis-racket/blob/master/.travis.yml
+language: c
+sudo: false
+
+env:
+  global:
+    - RACKET_DIR=~/racket
+
+  matrix:
+    - RACKET_VERSION=5.3.6
+    - RACKET_VERSION=6.1.1
+    - RACKET_VERSION=HEAD
+
+matrix:
+  allow_failures:
+    - env: RACKET_VERSION=HEAD
+  fast_finish: true
+
+# get required version(s) of racket
+before_install:
+  - git clone https://github.com/greghendershott/travis-racket.git
+  - cat travis-racket/install-racket.sh | bash # pipe to bash not sh!
+  - export PATH="${RACKET_DIR}/bin:${PATH}" #install-racket.sh can't set for us
+
+install:
+
+before_script:
+
+script:
+  - make link
+
+after_script:
