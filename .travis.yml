@@ -29,5 +29,6 @@ before_script:
 
 script:
   - make link
+  - raco test socketcan/tests.rkt
 
 after_script:
