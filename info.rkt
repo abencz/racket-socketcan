@@ -1,5 +1,7 @@
 #lang setup/infotab
 (define collection 'multi)
 (define scribblings '(("scribblings/socketcan.scrbl" ())))
-(define deps '())
+(define deps '("base"
+               "make"
+               ))
 (define build-deps '("scribble-lib"))
