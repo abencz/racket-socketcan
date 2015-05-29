@@ -15,6 +15,18 @@
 #include <linux/can/raw.h>
 
 
+typedef union
+{
+  const char *bytes;
+  int32_t int32;
+  int16_t int16;
+  int8_t int8;
+  uint32_t uint32;
+  uint16_t uint16;
+  uint8_t uint8;
+} integer_bytes;
+
+
 int can_open(const char *name)
   XFORM_SKIP_PROC
 {
@@ -189,6 +201,81 @@ static Scheme_Object* r_can_read_nonblock(int argc, Scheme_Object **argv)
   return scheme_make_pair(scheme_false, scheme_make_pair(scheme_false, scheme_null));
 }
 
+static uint32_t unsigned_convert_int(const char* buf, size_t width)
+  XFORM_SKIP_PROC
+{
+  integer_bytes *bytes = (integer_bytes*) buf;
+  switch(width)
+  {
+  case 1:
+    return bytes->uint8;
+  case 2:
+    return bytes->uint16;
+  case 3:
+    return bytes->uint32 & 0x00ffffff;
+  case 4:
+    return bytes->uint32;
+  default:
+    //error
+    break;
+  }
+}
+
+static int32_t signed_convert_int(const char* buf, size_t width)
+  XFORM_SKIP_PROC
+{
+  integer_bytes *bytes = (integer_bytes*) buf;
+
+  switch(width)
+  {
+  case 1:
+    return bytes->int8;
+  case 2:
+    return bytes->int16;
+  case 3:
+    if (bytes->int32 & (1 << 23))
+      return bytes->int32 | 0xff000000;
+    else
+      return bytes->int32 & 0x00ffffff;
+  case 4:
+    return bytes->int32;
+  default:
+    //error
+    break;
+  }
+}
+
+static Scheme_Object* convert_int(const char *buf, size_t width, int is_signed)
+  XFORM_SKIP_PROC
+{
+  if (is_signed)
+  {
+    return scheme_make_integer(signed_convert_int(buf, width));
+  }
+  else
+  {
+    return scheme_make_integer(unsigned_convert_int(buf, width));
+  }
+}
+
+static Scheme_Object* r_can_bytes_to_int(int argc, Scheme_Object **argv)
+{
+  size_t length, offset, numwidth;
+  const char *bytes;
+  int is_signed;
+
+  bytes = SCHEME_BYTE_STR_VAL(argv[0]);
+  length = SCHEME_BYTE_STRLEN_VAL(argv[0]);
+  offset = SCHEME_INT_VAL(argv[1]);
+  numwidth = SCHEME_INT_VAL(argv[2]);
+  is_signed = SCHEME_INT_VAL(argv[3]);
+
+  if (numwidth == 0)
+    numwidth = length - offset < 4 ? length - offset : 4;
+
+  return convert_int(bytes + offset, numwidth, is_signed);
+}
+
 Scheme_Object* scheme_initialize(Scheme_Env *env)
 {
   Scheme_Object *name, *proc;
@@ -211,6 +298,9 @@ Scheme_Object* scheme_initialize(Scheme_Env *env)
 
   proc = scheme_make_prim_w_arity(r_can_read_nonblock, "can-receive!*-raw", 1, 1);
   scheme_add_global("can-receive!*-raw", proc, module);
+
+  proc = scheme_make_prim_w_arity(r_can_bytes_to_int, "can-bytes-to-integer", 2, 4);
+  scheme_add_global("can-bytes-to-integer", proc, module);
 
   scheme_finish_primitive_module(module);
 
