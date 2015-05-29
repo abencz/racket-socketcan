@@ -55,5 +55,3 @@
 (check-equal? (can-bytes->integer test-bytes 0 3) #x0f7a54)
 (check-equal? (can-bytes->integer test-bytes 0 2) #x7a54)
 (check-equal? (can-bytes->integer test-bytes 0 1) #x54)
-
-(check-equal? (b->i #"\x01\xa2\xf4" 0 3) #xf4a201)

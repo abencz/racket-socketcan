@@ -11,8 +11,6 @@
            [can-send (-> integer? can-frame? boolean?)]
            [can-receive! (-> integer? can-frame?)]
            [can-receive!* (-> integer? can-frame?)]
-           [b->i (->* (bytes? natural-number/c (integer-in 0 4))
-                      integer?)]
            [can-bytes->integer (->* (bytes?)
                                 (natural-number/c (integer-in 0 8) boolean? boolean?)
                                 integer?)]
